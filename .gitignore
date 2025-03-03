@@ -2,7 +2,6 @@ bin
 include
 lib
 .Python
-tests/
 .env
 env/
 __pycache__
