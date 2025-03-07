@@ -86,5 +86,12 @@ def purchasePlaces():
 def logout():
     return redirect(url_for('index'))
 
+@app.route('/points')
+def points_display():
+    if not clubs:
+        flash("No data available for clubs.")
+        return redirect(url_for('index'))
+    return render_template('points.html', clubs=clubs)
+
 if __name__ == "__main__":
     app.run()

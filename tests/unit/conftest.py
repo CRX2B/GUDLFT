@@ -29,8 +29,10 @@ def setup_test_data():
     yield club_copy, competition_copy
     
     # Nettoyer les données de test
-    clubs.remove(club_copy)
-    competitions.remove(competition_copy)
+    if club_copy in clubs:
+        clubs.remove(club_copy)
+    if competition_copy in competitions:
+        competitions.remove(competition_copy)
 
 @pytest.fixture
 def setup_failing_test_data():
