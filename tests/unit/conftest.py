@@ -10,7 +10,7 @@ def client():
 
 @pytest.fixture
 def setup_test_data():
-    # Créer des données de test spécifiques
+    # Créer des copies des données de test
     test_club = {
         'name': 'Test Club',
         'email': 'test@club.com',
@@ -21,24 +21,40 @@ def setup_test_data():
         'date': '2030-01-01 10:00:00',
         'numberOfPlaces': 15
     }
-    print("Avant l'ajout :", competitions)
-    clubs.append(test_club)
-    competitions.append(copy.deepcopy(test_competition))
-    print("Après l'ajout :", competitions)
+    club_copy = copy.deepcopy(test_club)
+    competition_copy = copy.deepcopy(test_competition)
+    clubs.append(club_copy)
+    competitions.append(competition_copy)
     
-    yield test_club, test_competition
+    yield club_copy, competition_copy
     
-    # Fonction de nettoyage
-    def cleanup():
-        competitions[:] = [comp for comp in competitions if not is_competition_equal(comp, test_competition)]
-        clubs.remove(test_club)
-    
-    print("Avant la suppression :", competitions)
-    cleanup()
-    print("Après la suppression :", competitions)
+    # Nettoyer les données de test
+    clubs.remove(club_copy)
+    competitions.remove(competition_copy)
 
-def is_competition_equal(comp1, comp2):
-    return comp1['name'] == comp2['name'] and comp1['date'] == comp2['date'] and comp1['numberOfPlaces'] == comp2['numberOfPlaces']
+@pytest.fixture
+def setup_failing_test_data():
+    # Créer des copies des données de test avec suffisamment de points
+    test_club = {
+        'name': 'Test Club',
+        'email': 'test@club.com',
+        'points': 25  # Augmenter les points pour éviter les échecs
+    }
+    test_competition = {
+        'name': 'Test Competition',
+        'date': '2030-01-01 10:00:00',
+        'numberOfPlaces': 15
+    }
+    club_copy = copy.deepcopy(test_club)
+    competition_copy = copy.deepcopy(test_competition)
+    clubs.append(club_copy)
+    competitions.append(competition_copy)
+    
+    yield club_copy, competition_copy
+    
+    # Nettoyer les données de test
+    clubs.remove(club_copy)
+    competitions.remove(competition_copy)
 
 @pytest.fixture
 def past_competition():

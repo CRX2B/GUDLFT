@@ -45,26 +45,38 @@ def book(competition,club):
         flash("Something went wrong-please try again")
         return render_template('welcome.html', club=club, competitions=competitions)
 
+def saveClubsAndCompetitions():
+    with open('clubs.json', 'w') as c:
+        json.dump({'clubs': clubs}, c, indent=4)
+    with open('competitions.json', 'w') as comps:
+        json.dump({'competitions': competitions}, comps, indent=4)
 
-@app.route('/purchasePlaces',methods=['POST'])
+
+@app.route('/purchasePlaces', methods=['POST'])
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
     competition_date = datetime.strptime(competition['date'], '%Y-%m-%d %H:%M:%S')
+
     if competition_date < datetime.now():
         flash("You cannot book places for past competitions")
-        return render_template('welcome.html', club=club, competitions=competitions)
-    if club['points'] < placesRequired:
+        return render_template('booking.html', club=club, competition=competition)
+    elif placesRequired < 1:
+        flash("Sorry, select a number of places greater than 0")
+        return render_template('booking.html', club=club, competition=competition)
+    elif club['points'] < placesRequired:
         flash("You cannot use more points than you have")
-        return render_template('welcome.html', club=club, competitions=competitions)
-    if placesRequired > 12:
+        return render_template('booking.html', club=club, competition=competition)
+    elif placesRequired > 12:
         flash("You cannot book more than 12 places per competition")
+        return render_template('booking.html', club=club, competition=competition)
+    else:
+        competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - placesRequired
+        club['points'] -= placesRequired
+        flash('Purchase successful')
+        saveClubsAndCompetitions()
         return render_template('welcome.html', club=club, competitions=competitions)
-    competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
-    club['points'] -= placesRequired
-    flash('Great-booking complete!')
-    return render_template('welcome.html', club=club, competitions=competitions)
 
 
 # TODO: Add route for points display

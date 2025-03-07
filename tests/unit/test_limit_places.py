@@ -8,8 +8,8 @@ def client():
 
 # Test unitaire pour vérifier que les clubs ne peuvent pas réserver plus de 12 places par compétition
 
-def test_limit_places_per_competition(client, setup_test_data):
-    club, competition = setup_test_data
+def test_limit_places_per_competition(client, setup_failing_test_data):
+    club, competition = setup_failing_test_data
     initial_places = competition['numberOfPlaces']
 
     # Essayer de réserver plus de 12 places
