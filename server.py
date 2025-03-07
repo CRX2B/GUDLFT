@@ -1,6 +1,7 @@
 import json
 from flask import Flask,render_template,request,redirect,flash,url_for
 
+ERROR_MESSAGE_EMAIL_NOT_FOUND = "Désolé, ce courriel n'a pas été trouvé"
 
 def loadClubs():
     with open('clubs.json') as c:
@@ -26,7 +27,11 @@ def index():
 
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
-    club = [club for club in clubs if club['email'] == request.form['email']][0]
+    club_list = [club for club in clubs if club['email'] == request.form['email']]
+    if not club_list:
+        flash("Sorry, this email was not found")
+        return render_template('index.html')
+    club = club_list[0]
     return render_template('welcome.html',club=club,competitions=competitions)
 
 
