@@ -1,7 +1,7 @@
 import json
 from flask import Flask,render_template,request,redirect,flash,url_for
+from datetime import datetime
 
-ERROR_MESSAGE_EMAIL_NOT_FOUND = "Désolé, ce courriel n'a pas été trouvé"
 
 def loadClubs():
     with open('clubs.json') as c:
@@ -51,11 +51,15 @@ def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
-    if placesRequired > 12:
-        flash("You cannot book more than 12 places per competition")
+    competition_date = datetime.strptime(competition['date'], '%Y-%m-%d %H:%M:%S')
+    if competition_date < datetime.now():
+        flash("You cannot book places for past competitions")
         return render_template('welcome.html', club=club, competitions=competitions)
     if club['points'] < placesRequired:
         flash("You cannot use more points than you have")
+        return render_template('welcome.html', club=club, competitions=competitions)
+    if placesRequired > 12:
+        flash("You cannot book more than 12 places per competition")
         return render_template('welcome.html', club=club, competitions=competitions)
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     club['points'] -= placesRequired

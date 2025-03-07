@@ -1,16 +1,36 @@
 import pytest
 from server import app, clubs, competitions
+# from server import app, clubs, competitions  # Supprimé car géré par conftest.py
 
 @pytest.fixture
 def client():
     app.testing = True
     return app.test_client()
 
+@pytest.fixture
+def setup_test_data():
+    # Créer des données de test spécifiques
+    test_club = {
+        'name': 'Test Club',
+        'email': 'test@club.com',
+        'points': 5
+    }
+    test_competition = {
+        'name': 'Test Competition',
+        'date': '2030-01-01 10:00:00',
+        'numberOfPlaces': 10
+    }
+    clubs.append(test_club)
+    competitions.append(test_competition)
+    yield test_club, test_competition
+    # Nettoyer les données de test
+    clubs.remove(test_club)
+    competitions.remove(test_competition)
+
 # Test d'intégration pour vérifier le flux complet d'achat de places
 
-def test_purchase_places_integration(client):
-    club = clubs[0]
-    competition = competitions[0]
+def test_purchase_places_integration(client, setup_test_data):
+    club, competition = setup_test_data
     initial_points = club['points']
     initial_places = competition['numberOfPlaces']
 
@@ -29,4 +49,7 @@ def test_purchase_places_integration(client):
 
     # Vérifier que l'état n'a pas changé
     assert club['points'] == initial_points
-    assert competition['numberOfPlaces'] == initial_places 
+    assert competition['numberOfPlaces'] == initial_places
+    # Réinitialiser l'état
+    club['points'] = initial_points
+    competition['numberOfPlaces'] = initial_places 
