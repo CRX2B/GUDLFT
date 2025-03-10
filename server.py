@@ -41,13 +41,19 @@ def showSummary():
 
 @app.route('/book/<competition>/<club>')
 def book(competition,club):
-    foundClub = [c for c in clubs if c['name'] == club][0]
-    foundCompetition = [c for c in competitions if c['name'] == competition][0]
-    if foundClub and foundCompetition:
+    # BUG CORRIGÉ: Recherche sécurisée du club et de la compétition
+    # Vérification de l'existence avant d'accéder à l'index [0]
+    foundClub_list = [c for c in clubs if c['name'] == club]
+    foundCompetition_list = [c for c in competitions if c['name'] == competition]
+    
+    if foundClub_list and foundCompetition_list:
+        # Accès aux éléments seulement si les listes ne sont pas vides
+        foundClub = foundClub_list[0]
+        foundCompetition = foundCompetition_list[0]
         return render_template('booking.html',club=foundClub,competition=foundCompetition)
     else:
         flash("Something went wrong-please try again")
-        return render_template('welcome.html', club=club, competitions=competitions)
+        return render_template('index.html')
 
 def saveClubsAndCompetitions():
     with open('clubs.json', 'w') as c:
@@ -61,8 +67,6 @@ def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
-    
-    # Conversion de la date de compétition pour comparaison
     competition_date = datetime.strptime(competition['date'], '%Y-%m-%d %H:%M:%S')
 
     # BUG CORRIGÉ: Vérification que la compétition n'est pas déjà passée
