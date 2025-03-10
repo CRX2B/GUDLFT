@@ -1,12 +1,7 @@
 import pytest
 from server import app
 
-@pytest.fixture
-def client():
-    app.testing = True
-    return app.test_client()
-
-# Test unitaire pour vérifier que la fonction showSummary gère correctement les emails inconnus
+# Test: Vérification de la gestion des emails inconnus
 
 def test_show_summary_unknown_email(client):
     with client:

@@ -1,27 +1,22 @@
 import pytest
 from server import app, clubs, competitions
 
-@pytest.fixture
-def client():
-    app.testing = True
-    return app.test_client()
+# Test: Vérification de la limite de 12 places par compétition
 
-# Test unitaire pour vérifier que les clubs ne peuvent pas réserver plus de 12 places par compétition
-
-def test_limit_places_per_competition(client, setup_failing_test_data):
-    club, competition = setup_failing_test_data
+@pytest.mark.parametrize('setup_test_data', [25], indirect=True)
+def test_limit_places_per_competition(client, setup_test_data):
+    club, competition = setup_test_data
     initial_places = competition['numberOfPlaces']
 
-    # Essayer de réserver plus de 12 places
+    # Tentative de réservation de 13 places
     response = client.post('/purchasePlaces', data={
         'competition': competition['name'],
         'club': club['name'],
-        'places': 13  # Plus que le maximum autorisé de 12
+        'places': 13
     })
     assert response.status_code == 200
     assert "You cannot book more than 12 places per competition" in response.get_data(as_text=True)
 
-    # Vérifier que le nombre de places n'a pas changé
+    # Vérification que le nombre de places reste inchangé
     assert competition['numberOfPlaces'] == initial_places
-    # Réinitialiser l'état
     competition['numberOfPlaces'] = initial_places 

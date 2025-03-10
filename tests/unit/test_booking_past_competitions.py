@@ -2,12 +2,7 @@ import pytest
 from server import app, clubs, competitions
 from datetime import datetime
 
-@pytest.fixture
-def client():
-    app.testing = True
-    return app.test_client()
-
-# Test unitaire pour vérifier que les réservations pour des compétitions passées sont empêchées
+# Test: Vérification du refus des réservations pour compétitions passées
 
 def test_booking_past_competition(client, past_competition):
     club = clubs[0]
